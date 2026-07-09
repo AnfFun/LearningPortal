@@ -6,6 +6,8 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig } from 'vite';
 
+const isVercelBuild = process.env.VERCEL === '1';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -27,8 +29,6 @@ export default defineConfig({
                 },
             },
         }),
-        wayfinder({
-            formVariants: true,
-        }),
+        ...(isVercelBuild ? [] : [wayfinder({ formVariants: true })]),
     ],
 });
