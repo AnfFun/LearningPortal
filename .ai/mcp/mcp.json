@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "/opt/homebrew/Cellar/php/8.5.4/bin/php",
+      "args": [
+        "/Users/maxwork/Sites/LearningPortal/LearningPortal/artisan",
+        "boost:mcp"
+      ]
+    }
+  }
+}

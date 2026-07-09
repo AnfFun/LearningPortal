@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
-import { Check, ChevronsUpDown, Plus, Users } from '@lucide/vue';
+import { Check, ChevronDown, Plus, Users } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import CreateTeamModal from '@/components/CreateTeamModal.vue';
 import { Button } from '@/components/ui/button';
@@ -92,10 +92,11 @@ onUnmounted(() => {
             <Button
                 data-test="team-switcher-trigger"
                 variant="ghost"
+                :aria-label="currentTeam?.name ?? 'Select team'"
                 :class="
                     props.inHeader
                         ? 'h-8 gap-1 px-2'
-                        : 'w-full justify-start px-2 has-[>svg]:px-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+                        : 'dark:bg-sidebar-background h-11 w-full justify-start border border-sidebar-border bg-white px-3 shadow-none group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0! hover:bg-sidebar-accent has-[>svg]:px-3 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                 "
             >
                 <Users
@@ -122,7 +123,7 @@ onUnmounted(() => {
                         {{ currentTeam?.name ?? 'Select team' }}
                     </span>
                 </div>
-                <ChevronsUpDown
+                <ChevronDown
                     :class="
                         props.inHeader
                             ? 'size-4 opacity-50'

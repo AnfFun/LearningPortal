@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -28,6 +29,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Team|null $currentTeam
  * @property-read Collection<int, Team> $ownedTeams
+ * @property-read Collection<int, StudentNoteGroup> $studentNoteGroups
+ * @property-read Collection<int, StudentNote> $studentNotes
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
  */
@@ -49,5 +52,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the student's note groups.
+     *
+     * @return HasMany<StudentNoteGroup, $this>
+     */
+    public function studentNoteGroups(): HasMany
+    {
+        return $this->hasMany(StudentNoteGroup::class);
+    }
+
+    /**
+     * Get the student's notes.
+     *
+     * @return HasMany<StudentNote, $this>
+     */
+    public function studentNotes(): HasMany
+    {
+        return $this->hasMany(StudentNote::class);
     }
 }

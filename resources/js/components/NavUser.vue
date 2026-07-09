@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { ChevronsUpDown } from '@lucide/vue';
-import { computed } from 'vue';
+import { ChevronDown } from '@lucide/vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,13 +14,10 @@ import {
 } from '@/components/ui/sidebar';
 import UserInfo from '@/components/UserInfo.vue';
 import UserMenuContent from '@/components/UserMenuContent.vue';
-import type { Team } from '@/types';
 
 const page = usePage();
 const user = page.props.auth.user;
 const { isMobile, state } = useSidebar();
-
-const currentTeam = computed(() => page.props.currentTeam as Team | null);
 </script>
 
 <template>
@@ -31,11 +27,13 @@ const currentTeam = computed(() => page.props.currentTeam as Team | null);
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton
                         size="lg"
-                        class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        class="h-auto min-h-14 px-2 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:min-h-0! group-data-[collapsible=icon]:p-0! data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         data-test="sidebar-menu-button"
                     >
-                        <UserInfo :user="user" :team="currentTeam" />
-                        <ChevronsUpDown class="ml-auto size-4" />
+                        <UserInfo :user="user" show-email />
+                        <ChevronDown
+                            class="ml-auto size-4 group-data-[collapsible=icon]:hidden"
+                        />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -44,7 +42,7 @@ const currentTeam = computed(() => page.props.currentTeam as Team | null);
                         isMobile
                             ? 'bottom'
                             : state === 'collapsed'
-                              ? 'left'
+                              ? 'right'
                               : 'bottom'
                     "
                     align="end"

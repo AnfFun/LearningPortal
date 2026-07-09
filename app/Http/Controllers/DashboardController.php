@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StudentNote;
 use App\Models\TeamInvitation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,8 +32,32 @@ class DashboardController extends Controller
                 ],
             ]);
 
+        $recentNotes = $request->user()->studentNotes()
+            ->select([
+                'id',
+                'user_id',
+                'student_note_group_id',
+                'title',
+                'body',
+                'updated_at',
+            ])
+            ->with('group:id,name')
+            ->latest('updated_at')
+            ->latest('id')
+            ->limit(3)
+            ->get()
+            ->map(fn (StudentNote $note) => [
+                'id' => $note->id,
+                'studentNoteGroupId' => $note->student_note_group_id,
+                'groupName' => $note->group->name,
+                'title' => $note->title,
+                'bodyPreview' => $note->bodyPreview(),
+                'updatedAt' => $note->updated_at?->toISOString(),
+            ]);
+
         return Inertia::render('Dashboard', [
             'pendingInvitations' => $pendingInvitations,
+            'recentNotes' => $recentNotes,
         ]);
     }
 }

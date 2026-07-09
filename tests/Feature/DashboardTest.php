@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Models\StudentNote;
+use App\Models\StudentNoteGroup;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
@@ -20,9 +22,70 @@ test('authenticated users can visit the dashboard', function () {
 
     $response = $this
         ->actingAs($user)
-        ->get(route('dashboard'));
+        ->get(route('dashboard', ['current_team' => $user->currentTeam->slug]));
 
-    $response->assertOk();
+    $response
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('recentNotes', 0),
+        );
+});
+
+test('dashboard includes the three most recently updated notes for the authenticated user', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $group = StudentNoteGroup::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Laravel Basics',
+    ]);
+    $otherGroup = StudentNoteGroup::factory()->create([
+        'user_id' => $otherUser->id,
+    ]);
+    $latestTimestamp = now()->subMinute();
+
+    $firstLatestNote = StudentNote::factory()->forGroup($group)->create([
+        'title' => 'First latest note',
+        'body' => 'First **details**.',
+        'created_at' => $latestTimestamp,
+        'updated_at' => $latestTimestamp,
+    ]);
+    $secondLatestNote = StudentNote::factory()->forGroup($group)->create([
+        'title' => 'Second latest note',
+        'body' => "## Second\n\nUse **map** and <script>alert(\"x\")</script> filter.",
+        'created_at' => $latestTimestamp,
+        'updated_at' => $latestTimestamp,
+    ]);
+    $thirdLatestNote = StudentNote::factory()->forGroup($group)->create([
+        'title' => 'Third latest note',
+        'updated_at' => now()->subMinutes(2),
+    ]);
+    StudentNote::factory()->forGroup($group)->create([
+        'title' => 'Older note',
+        'updated_at' => now()->subMinutes(3),
+    ]);
+    StudentNote::factory()->forGroup($otherGroup)->create([
+        'title' => 'Other users newest note',
+        'updated_at' => now(),
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard', ['current_team' => $user->currentTeam->slug]));
+
+    $response
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('recentNotes', 3)
+            ->where('recentNotes.0.id', $secondLatestNote->id)
+            ->where('recentNotes.0.studentNoteGroupId', $group->id)
+            ->where('recentNotes.0.groupName', 'Laravel Basics')
+            ->where('recentNotes.0.title', 'Second latest note')
+            ->where('recentNotes.0.bodyPreview', 'Second Use map and alert("x") filter.')
+            ->where('recentNotes.1.id', $firstLatestNote->id)
+            ->where('recentNotes.2.id', $thirdLatestNote->id),
+        );
 });
 
 test('dashboard includes pending invitations for the authenticated user', function () {

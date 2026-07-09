@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import { BookOpen, FolderGit2, LayoutGrid, StickyNote } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -17,6 +17,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as notesIndex } from '@/routes/notes';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -25,11 +26,20 @@ const dashboardUrl = computed(() =>
     page.props.currentTeam ? dashboard(page.props.currentTeam.slug).url : '/',
 );
 
+const notesUrl = computed(() =>
+    page.props.currentTeam ? notesIndex(page.props.currentTeam.slug).url : '/',
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
         href: dashboardUrl.value,
         icon: LayoutGrid,
+    },
+    {
+        title: 'Notes',
+        href: notesUrl.value,
+        icon: StickyNote,
     },
 ]);
 
@@ -48,12 +58,18 @@ const footerNavItems: NavItem[] = [
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
+    <Sidebar
+        collapsible="icon"
+        variant="sidebar"
+        class="border-r border-sidebar-border"
+    >
+        <SidebarHeader
+            class="gap-8 px-4 pt-5 pb-4 group-data-[collapsible=icon]:px-2"
+        >
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboardUrl">
+                        <Link :href="dashboardUrl" aria-label="LearningPortal">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
@@ -66,12 +82,14 @@ const footerNavItems: NavItem[] = [
             </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent class="gap-0">
             <NavMain :items="mainNavItems" />
+            <NavFooter :items="footerNavItems" class="px-5" />
         </SidebarContent>
 
-        <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
+        <SidebarFooter
+            class="min-h-[10.75rem] justify-end gap-3 border-t border-sidebar-border px-4 pt-7 pb-4 group-data-[collapsible=icon]:px-2"
+        >
             <NavUser />
         </SidebarFooter>
     </Sidebar>
